@@ -20,7 +20,6 @@ func RegisterHandler(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
 		helpers.ErrorJSON(c, err.Error())
-		// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -29,7 +28,6 @@ func RegisterHandler(c *gin.Context) {
 	db.Where("username = ?", registerRequest.Username).First(&user)
 	if user.ID != 0 {
 		helpers.ErrorJSON(c, "Username already taken.")
-		// c.JSON(http.StatusConflict, gin.H{"error": "Username already taken."})
 		return
 	}
 
@@ -37,7 +35,6 @@ func RegisterHandler(c *gin.Context) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerRequest.Password), bcrypt.DefaultCost)
 	if err != nil {
 		helpers.ErrorJSON(c, "Failed to hash password.")
-		// c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password."})
 		return
 	}
 	user.Username = registerRequest.Username
@@ -46,7 +43,6 @@ func RegisterHandler(c *gin.Context) {
 	// save user to database
 	db.Create(&user)
 	helpers.ErrorJSON(c, "User registered successfully.")
-	// c.JSON(http.StatusOK, gin.H{"message": "User registered successfully."})
 }
 
 func LoginHandler(c *gin.Context) {
@@ -59,7 +55,6 @@ func LoginHandler(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
 		helpers.ErrorJSON(c, err.Error())
-		// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -68,7 +63,6 @@ func LoginHandler(c *gin.Context) {
 	db.Where("username = ?", loginRequest.Username).First(&user)
 	if user.ID == 0 {
 		helpers.ErrorJSON(c, "Invalid Credential.")
-		// c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials."})
 		return
 	}
 
@@ -76,7 +70,6 @@ func LoginHandler(c *gin.Context) {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 	if err != nil {
 		helpers.ErrorJSON(c, "Invalid credentials.")
-		// c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
@@ -84,10 +77,8 @@ func LoginHandler(c *gin.Context) {
 	token, err := middleware.GenerateToken(user)
 	if err != nil {
 		helpers.ErrorJSON(c, "Error creating token")
-		// c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating token"})
 		return
 	}
 
 	helpers.SuccessJSON(c, "login succesfull", token)
-	// c.JSON(http.StatusOK, gin.H{"token": token})
 }

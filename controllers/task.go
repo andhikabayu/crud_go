@@ -21,7 +21,6 @@ type UpdateTaskInput struct {
 	Deadline   string `json:"deadline"`
 }
 
-// GET /tasks
 // Get all tasks
 func FindTasks(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
@@ -31,14 +30,12 @@ func FindTasks(c *gin.Context) {
 	helpers.SuccessJSON(c, "Task retrieved successfully.", tasks)
 }
 
-// POST /tasks
 // Create new task
 func CreateTask(c *gin.Context) {
 	// validate input
 	var input CreateTaskInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		helpers.ErrorJSON(c, err.Error())
-		// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	date := "2006-01-02"
@@ -55,10 +52,8 @@ func CreateTask(c *gin.Context) {
 	db.Create(&task)
 
 	helpers.SuccessJSON(c, "Task created successfully.", task)
-	// c.JSON(http.StatusOK, gin.H{"data": task})
 }
 
-// GET /tasks/:id
 // Find a task
 func FindTask(c *gin.Context) {
 	var task models.Task
@@ -66,14 +61,11 @@ func FindTask(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	if err := db.Where("id = ?", c.Param("id")).First(&task).Error; err != nil {
 		helpers.ErrorJSON(c, "Record not found!")
-		// c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
 		return
 	}
 	helpers.SuccessJSON(c, "Task retrived successfully", task)
-	// c.JSON(http.StatusOK, gin.H{"data": task})
 }
 
-// PATCH /tasks/:id
 // Update a task
 func UpdateTask(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
@@ -81,7 +73,6 @@ func UpdateTask(c *gin.Context) {
 	var task models.Task
 	if err := db.Where("id = ?", c.Param("id")).First(&task).Error; err != nil {
 		helpers.ErrorJSON(c, "Data not found!")
-		// c.JSON(http.StatusBadRequest, gin.H{"error": "Data not found!"})
 		return
 	}
 
@@ -89,7 +80,6 @@ func UpdateTask(c *gin.Context) {
 	var input UpdateTaskInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		helpers.ErrorJSON(c, err.Error())
-		// c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -104,10 +94,8 @@ func UpdateTask(c *gin.Context) {
 	db.Model(&task).Updates(updatedInput)
 
 	helpers.SuccessJSON(c, "Task updated successfully.", task)
-	// c.JSON(http.StatusOK, gin.H{"data": task})
 }
 
-// DELETE /tasks/:id
 // Delete a task
 func DeleteTask(c *gin.Context) {
 	// get model if exist
@@ -115,12 +103,10 @@ func DeleteTask(c *gin.Context) {
 	var task models.Task
 	if err := db.Where("id = ?", c.Param("id")).First(&task).Error; err != nil {
 		helpers.ErrorJSON(c, "Data not found")
-		// c.JSON(http.StatusBadRequest, gin.H{"error": "Data not found!"})
 		return
 	}
 
 	db.Delete(&task)
 
 	helpers.SuccessJSON(c, "Task deleted successfully.", true)
-	// c.JSON(http.StatusOK, gin.H{"data": true})
 }
